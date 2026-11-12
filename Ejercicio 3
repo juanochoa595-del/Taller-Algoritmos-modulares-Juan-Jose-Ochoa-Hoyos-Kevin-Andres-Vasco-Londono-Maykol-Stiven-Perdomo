@@ -1,0 +1,194 @@
+using System;
+class HelloWorld {
+   static string[] codigos = new string[25];
+   static string[] nombres = new string[25];   
+   static double[] nota1 = new double[25];     
+   static double[] nota2 = new double[25];
+   static double[] nota3 = new double[25];
+   static double[] asistencia = new double[25];
+   static int cantidad = 0;
+  static void Main() {
+      bool salir = false;
+      while (!salir)
+        {
+            Console.Clear();
+            Console.WriteLine("MENÚ PRINCIPAL");
+            Console.WriteLine("1. Registrar estudiante");
+            Console.WriteLine("2. Calcular definitiva");
+            Console.WriteLine("3. Determinar estado");
+            Console.WriteLine("4. Mostrar promedio general del grupo");
+            Console.WriteLine("5. Identificar mejor y peor promedio");
+            Console.WriteLine("6. Salir");
+            
+            string opcion = Console.ReadLine();
+            switch (opcion)
+            {
+                case "1":
+                    RegistrarEstudiante();
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+
+                case "2":
+                    CalcularDefinitiva();
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+
+                case "3":
+                    DeterminarEstado();
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+                    
+                case "4":
+                    MostrarPromedioGrupo();
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+                    
+                case "5":
+                    MejorPeorPromedio();
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+                    
+                case "6":
+                    salir = true;
+                    Console.WriteLine("Saliendo del programa");
+                    break;
+
+                default:
+                    Console.WriteLine("Opción no válida");
+                    Console.WriteLine("Presione Enter para continuar...");
+                    Console.ReadLine();
+                    break;
+            }
+        }
+  }
+static void RegistrarEstudiante() {
+
+    if (cantidad >= 25)
+    {
+        Console.WriteLine("Ya se registraron los 25 estudiantes.");
+        return;
+    }
+
+    for (int i = cantidad; i < 25; i++)
+    {
+        Console.WriteLine($"Ingrese el codigo del estudiante {i + 1}");
+        codigos[i] = Console.ReadLine();
+
+        Console.WriteLine($"Ingrese el nombre del estudiante {i + 1}");
+        nombres[i] = Console.ReadLine();
+
+        Console.WriteLine($"Ingrese la nota 1 de {nombres[i]}");
+        nota1[i] = double.Parse(Console.ReadLine());
+        while (nota1[i] < 0 || nota1[i] > 5)
+        {
+            Console.WriteLine("Nota inválida, debe estar entre 0.0 y 5.0");
+            Console.WriteLine($"Ingrese la nota 1 de {nombres[i]}");
+            nota1[i] = double.Parse(Console.ReadLine());
+        }
+
+        Console.WriteLine($"Ingrese la nota 2 de {nombres[i]}");
+        nota2[i] = double.Parse(Console.ReadLine());
+        while (nota2[i] < 0 || nota2[i] > 5)
+        {
+            Console.WriteLine("Nota inválida, debe estar entre 0.0 y 5.0");
+            Console.WriteLine($"Ingrese la nota 2 de {nombres[i]}");
+            nota2[i] = double.Parse(Console.ReadLine());
+        }
+
+        Console.WriteLine($"Ingrese la nota 3 de {nombres[i]}");
+        nota3[i] = double.Parse(Console.ReadLine());
+        while (nota3[i] < 0 || nota3[i] > 5)
+        {
+            Console.WriteLine("Nota inválida, debe estar entre 0.0 y 5.0");
+            Console.WriteLine($"Ingrese la nota 3 de {nombres[i]}");
+            nota3[i] = double.Parse(Console.ReadLine());
+        }
+
+        Console.WriteLine($"Ingrese la asistencia de {nombres[i]} (0 - 100)");
+        asistencia[i] = double.Parse(Console.ReadLine());
+        while (asistencia[i] < 0 || asistencia[i] > 100)
+        {
+            Console.WriteLine("Asistencia inválida, debe estar entre 0 y 100");
+            Console.WriteLine($"Ingrese la asistencia de {nombres[i]} (0 - 100)");
+            asistencia[i] = double.Parse(Console.ReadLine());
+        }
+        cantidad++;
+
+        Console.Write("¿Registrar otro estudiante? (s/n): ");
+        if (Console.ReadLine().ToLower() != "s")
+            break;
+    }
+}
+static void CalcularDefinitiva() {
+    for (int i = 0; i < cantidad; i++)
+    {
+        double definitiva = (nota1[i] + nota2[i] + nota3[i]) / 3;
+        Console.WriteLine($"{codigos[i]}-{nombres[i]}-{definitiva}");
+    }
+}
+static void DeterminarEstado() {
+    for (int i = 0; i < cantidad; i++)
+    {
+        double definitiva = (nota1[i] + nota2[i] + nota3[i]) / 3;
+        string estado;
+
+        if (definitiva < 2.4)
+        {
+            estado = "Reprueba";
+        }
+        else if (definitiva < 3.0)
+        {
+            estado = "Habilita";
+        }
+        else
+        {
+            estado = "Aprobado";
+        }
+
+        Console.WriteLine(estado);
+    }
+}
+static void MostrarPromedioGrupo() {
+  if (cantidad == 0)
+    {
+        Console.WriteLine("No hay estudiantes registrados.");
+        return;
+    }
+double suma = 0;
+    for (int i = 0;i<cantidad;i++)
+    {
+        double definitiva = (nota1[i] + nota2[i] + nota3[i]) / 3;
+        suma = suma + definitiva;
+    }
+   double promedio = suma/cantidad;
+    Console.WriteLine($"Promedio general del grupo: {promedio}");
+}
+static void MejorPeorPromedio() {
+    if (cantidad == 0)
+    {
+        Console.WriteLine("No hay estudiantes registrados.");
+        return;
+    }
+         double Mejorp = (nota1[0] + nota2[0] + nota3[0])/3;
+         double peor = Mejorp;
+         for (int i = 1; i<cantidad;i++)
+         {
+         double definitiva = (nota1[i] + nota2[i] + nota3[i])/3;
+                  if (definitiva>Mejorp)
+                  {
+                           Mejorp = definitiva;
+                  }
+                  if (definitiva < peor)
+                  {
+                           peor = definitiva;
+                  }
+         }
+         Console.WriteLine($"El mejor promedio fue: {Mejorp}");
+         Console.WriteLine($"El peor promedio fue: {peor}");
+}
+}
