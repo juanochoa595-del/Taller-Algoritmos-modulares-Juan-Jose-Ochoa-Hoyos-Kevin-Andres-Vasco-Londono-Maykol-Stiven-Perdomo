@@ -1,0 +1,319 @@
+using System;
+
+class Programa
+{
+    // Estructura del paciente
+    struct Paciente
+    {
+        public string Documento;
+        public string Nombre;
+        public int Edad;
+        public string TipoAtencion; // Urgencias, Consulta General, Prioritaria
+        public int Prioridad;       // 1 a 5 (1 = mayor prioridad)
+    }
+
+    // Constantes
+    const int MAX_PACIENTES = 30;
+
+    static Paciente[] pacientes = new Paciente[MAX_PACIENTES];
+    static int cantidadPacientes = 0;
+
+    static void Main()
+    {
+        int opcion;
+
+        do
+        {
+            Console.Clear();
+            MostrarMenu();
+            opcion = LeerEntero("Seleccione una opción: ");
+
+            switch (opcion)
+            {
+                case 1:
+                    RegistrarPaciente();
+                    break;
+                case 2:
+                    MostrarListadoGeneral();
+                    break;
+                case 3:
+                    BuscarPorDocumento();
+                    break;
+                case 4:
+                    MostrarCantidadPorTipo();
+                    break;
+                case 5:
+                    IdentificarMayorPrioridad();
+                    break;
+                case 0:
+                    Console.WriteLine("\n¡Hasta luego!");
+                    break;
+                default:
+                    Console.WriteLine("\nOpción no válida.");
+                    break;
+            }
+
+            if (opcion != 0)
+            {
+                Console.WriteLine("\nPresione cualquier tecla para continuar...");
+                Console.ReadKey();
+            }
+
+        } while (opcion != 0);
+    }
+
+    // ====================== MENÚ ======================
+    static void MostrarMenu()
+    {
+        Console.WriteLine("=========================================");
+        Console.WriteLine("   SISTEMA DE CONTROL DE TURNOS - IPS");
+        Console.WriteLine("=========================================");
+        Console.WriteLine($"Pacientes registrados: {cantidadPacientes}/{MAX_PACIENTES}");
+        Console.WriteLine("-----------------------------------------");
+        Console.WriteLine("1. Registrar paciente");
+        Console.WriteLine("2. Mostrar listado general");
+        Console.WriteLine("3. Buscar paciente por documento");
+        Console.WriteLine("4. Mostrar cantidad por tipo de atención");
+        Console.WriteLine("5. Identificar paciente con mayor prioridad");
+        Console.WriteLine("0. Salir");
+        Console.WriteLine("-----------------------------------------");
+    }
+
+    // ====================== 1. REGISTRAR ======================
+    static void RegistrarPaciente()
+    {
+        Console.Clear();
+        Console.WriteLine("--- REGISTRAR NUEVO PACIENTE ---\n");
+
+        // Validación de cupos
+        if (cantidadPacientes >= MAX_PACIENTES)
+        {
+            Console.WriteLine("ERROR: No hay cupos disponibles. Se alcanzó el límite de 30 pacientes.");
+            return;
+        }
+
+        Paciente nuevo = new Paciente();
+
+        // Documento (único)
+        do
+        {
+            Console.Write("Número de documento: ");
+            nuevo.Documento = Console.ReadLine().Trim();
+
+            if (string.IsNullOrEmpty(nuevo.Documento))
+            {
+                Console.WriteLine("El documento no puede estar vacío.");
+                continue;
+            }
+
+            if (ExisteDocumento(nuevo.Documento))
+            {
+                Console.WriteLine("Ya existe un paciente con ese documento.");
+                nuevo.Documento = "";
+            }
+
+        } while (string.IsNullOrEmpty(nuevo.Documento));
+
+        // Nombre
+        do
+        {
+            Console.Write("Nombre completo: ");
+            nuevo.Nombre = Console.ReadLine().Trim();
+            if (string.IsNullOrEmpty(nuevo.Nombre))
+                Console.WriteLine("El nombre no puede estar vacío.");
+        } while (string.IsNullOrEmpty(nuevo.Nombre));
+
+        // Edad
+        do
+        {
+            nuevo.Edad = LeerEntero("Edad: ");
+            if (nuevo.Edad < 0 || nuevo.Edad > 120)
+                Console.WriteLine("Edad no válida (0-120).");
+        } while (nuevo.Edad < 0 || nuevo.Edad > 120);
+
+        // Tipo de atención
+        do
+        {
+            Console.WriteLine("Tipo de atención:");
+            Console.WriteLine("  1. Urgencias");
+            Console.WriteLine("  2. Consulta General");
+            Console.WriteLine("  3. Prioritaria");
+            int tipo = LeerEntero("Seleccione (1-3): ");
+
+            switch (tipo)
+            {
+                case 1: nuevo.TipoAtencion = "Urgencias"; break;
+                case 2: nuevo.TipoAtencion = "Consulta General"; break;
+                case 3: nuevo.TipoAtencion = "Prioritaria"; break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    nuevo.TipoAtencion = "";
+                    break;
+            }
+        } while (string.IsNullOrEmpty(nuevo.TipoAtencion));
+
+        // Prioridad
+        do
+        {
+            nuevo.Prioridad = LeerEntero("Nivel de prioridad (1 a 5): ");
+            if (nuevo.Prioridad < 1 || nuevo.Prioridad > 5)
+                Console.WriteLine("La prioridad debe estar entre 1 y 5.");
+        } while (nuevo.Prioridad < 1 || nuevo.Prioridad > 5);
+
+        // Guardar
+        pacientes[cantidadPacientes] = nuevo;
+        cantidadPacientes++;
+
+        Console.WriteLine("\n✓ Paciente registrado correctamente.");
+    }
+
+    // ====================== 2. LISTADO GENERAL ======================
+    static void MostrarListadoGeneral()
+    {
+        Console.Clear();
+        Console.WriteLine("--- LISTADO GENERAL DE PACIENTES ---\n");
+
+        if (cantidadPacientes == 0)
+        {
+            Console.WriteLine("No hay pacientes registrados.");
+            return;
+        }
+
+        Console.WriteLine($"{"#",-4} {"Documento",-15} {"Nombre",-30} {"Edad",-6} {"Tipo",-18} {"Prioridad"}");
+        Console.WriteLine(new string('-', 85));
+
+        for (int i = 0; i < cantidadPacientes; i++)
+        {
+            Console.WriteLine($"{i + 1,-4} {pacientes[i].Documento,-15} {pacientes[i].Nombre,-30} {pacientes[i].Edad,-6} {pacientes[i].TipoAtencion,-18} {pacientes[i].Prioridad}");
+        }
+    }
+
+    // ====================== 3. BUSCAR POR DOCUMENTO ======================
+    static void BuscarPorDocumento()
+    {
+        Console.Clear();
+        Console.WriteLine("--- BUSCAR PACIENTE POR DOCUMENTO ---\n");
+
+        if (cantidadPacientes == 0)
+        {
+            Console.WriteLine("No hay pacientes registrados.");
+            return;
+        }
+
+        Console.Write("Ingrese el número de documento: ");
+        string doc = Console.ReadLine().Trim();
+
+        int indice = BuscarIndicePorDocumento(doc);
+
+        if (indice == -1)
+        {
+            Console.WriteLine("\nNo se encontró ningún paciente con ese documento.");
+        }
+        else
+        {
+            Console.WriteLine("\nPaciente encontrado:");
+            Console.WriteLine($"Documento   : {pacientes[indice].Documento}");
+            Console.WriteLine($"Nombre      : {pacientes[indice].Nombre}");
+            Console.WriteLine($"Edad        : {pacientes[indice].Edad}");
+            Console.WriteLine($"Tipo        : {pacientes[indice].TipoAtencion}");
+            Console.WriteLine($"Prioridad   : {pacientes[indice].Prioridad}");
+        }
+    }
+
+    // ====================== 4. CANTIDAD POR TIPO ======================
+    static void MostrarCantidadPorTipo()
+    {
+        Console.Clear();
+        Console.WriteLine("--- CANTIDAD DE PACIENTES POR TIPO DE ATENCIÓN ---\n");
+
+        if (cantidadPacientes == 0)
+        {
+            Console.WriteLine("No hay pacientes registrados.");
+            return;
+        }
+
+        int urgencias = 0, consulta = 0, prioritaria = 0;
+
+        for (int i = 0; i < cantidadPacientes; i++)
+        {
+            switch (pacientes[i].TipoAtencion)
+            {
+                case "Urgencias": urgencias++; break;
+                case "Consulta General": consulta++; break;
+                case "Prioritaria": prioritaria++; break;
+            }
+        }
+
+        Console.WriteLine($"Urgencias          : {urgencias}");
+        Console.WriteLine($"Consulta General   : {consulta}");
+        Console.WriteLine($"Prioritaria        : {prioritaria}");
+        Console.WriteLine($"-----------------------------");
+        Console.WriteLine($"Total              : {cantidadPacientes}");
+    }
+
+    // ====================== 5. MAYOR PRIORIDAD ======================
+    static void IdentificarMayorPrioridad()
+    {
+        Console.Clear();
+        Console.WriteLine("--- PACIENTE CON MAYOR PRIORIDAD ---\n");
+
+        if (cantidadPacientes == 0)
+        {
+            Console.WriteLine("No hay pacientes registrados.");
+            return;
+        }
+
+        // Prioridad 1 es la más alta (menor número = mayor urgencia)
+        int indiceMayor = 0;
+        int menorPrioridad = pacientes[0].Prioridad;
+
+        for (int i = 1; i < cantidadPacientes; i++)
+        {
+            if (pacientes[i].Prioridad < menorPrioridad)
+            {
+                menorPrioridad = pacientes[i].Prioridad;
+                indiceMayor = i;
+            }
+        }
+
+        Console.WriteLine("El paciente con mayor prioridad es:\n");
+        Console.WriteLine($"Documento   : {pacientes[indiceMayor].Documento}");
+        Console.WriteLine($"Nombre      : {pacientes[indiceMayor].Nombre}");
+        Console.WriteLine($"Edad        : {pacientes[indiceMayor].Edad}");
+        Console.WriteLine($"Tipo        : {pacientes[indiceMayor].TipoAtencion}");
+        Console.WriteLine($"Prioridad   : {pacientes[indiceMayor].Prioridad}");
+    }
+
+    // ====================== MÉTODOS AUXILIARES ======================
+    static bool ExisteDocumento(string documento)
+    {
+        for (int i = 0; i < cantidadPacientes; i++)
+        {
+            if (pacientes[i].Documento.Equals(documento, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
+    static int BuscarIndicePorDocumento(string documento)
+    {
+        for (int i = 0; i < cantidadPacientes; i++)
+        {
+            if (pacientes[i].Documento.Equals(documento, StringComparison.OrdinalIgnoreCase))
+                return i;
+        }
+        return -1;
+    }
+
+    static int LeerEntero(string mensaje)
+    {
+        int valor;
+        while (true)
+        {
+            Console.Write(mensaje);
+            if (int.TryParse(Console.ReadLine(), out valor))
+                return valor;
+            Console.WriteLine("Debe ingresar un número entero válido.");
+        }
+    }
+}
